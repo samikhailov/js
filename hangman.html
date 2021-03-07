@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Виселица</title>
+</head>
+
+<body>
+    <canvas id="canvas" width="640" height="720"></canvas>
+    <script>
+    var WordLetter = function(letter, x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.letter = letter;
+        this.isShown = false;
+    }
+
+    WordLetter.prototype.update = function() {
+        var urderlineBorder = 5,
+            urderlineHeight = 3;
+
+        if (this.isShown === true) {
+            ctx.font = "36px Arial";
+            ctx.fillStyle = "Black";
+            ctx.fillText(this.letter.toUpperCase(), this.x + this.width / 2, this.y + this.height / 2);
+        }
+
+        ctx.fillRect(this.x + urderlineBorder, this.y + this.height, this.width - urderlineBorder * 2, urderlineHeight);
+    }
+
+    var Word = function() {
+        var getRandomWord = function() {
+            words = ["собака", "щенок", "кот", "кошка", "котенок", "попугай", "хомяк", "шиншилла", "мышь", "крыса", "курица", "петух", "корова", "бык", "свинья", "поросенок", "индейка", "овца", "баран", "ягненок", "лошадь", "кролик", "козел", "осел", "муха", "паук", "пчела", "скорпион", "оса", "комар", "москит", "жук", "крокодил", "черепаха", "змея", "кобра", "динозавр", "пингвин", "ласточка", "голубь", "лебедь", "орел", "сова", "журавль", "снегирь", "сорока"]
+            var word = words[Math.floor(Math.random() * words.length)];
+            console.log(word);
+            return word;
+        }
+        this.word = getRandomWord();
+        this.letters = this.initLetters();
+        this.update();
+    }
+
+    Word.prototype.update = function() {
+        this.letters.forEach((element) => {
+            element.update();
+        })
+    }
+
+    Word.prototype.initLetters = function() {
+        var localWidth = 62,
+            localHeight = 60,
+            paddingBottom = 370;
+
+        var result = [],
+            offsetX = (width - localWidth * this.word.length) / 2,
+            offsetY = height - paddingBottom,
+            column = 0;
+
+        for (var i = 0; i < this.word.length; i++) {
+            tmp = new WordLetter(this.word[i], offsetX + localWidth * column, offsetY, localWidth, localHeight);
+            result.push(tmp);
+            column++;
+        }
+
+        return result;
+    }
+
+    Word.prototype.isLetterInWord = function(letter) {
+        var state = false;
+        for (var i = 0; i < this.letters.length; i++) {
+            if (this.letters[i].letter.toLowerCase() === letter) {
+                this.letters[i].isShown = true;
+                state = true;
+            }
+        }
+        return state;
+    }
+
+    Word.prototype.checkWordProgress = function() {
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "Black";
+        ctx.fillText("Осталось попыток: " + attempts, width / 2, height / 2 - 50);
+
+        var isDone = true;
+        this.letters.forEach((element) => {
+            if (element.isShown == false) {
+                isDone = false;
+            }
+        })
+
+        if (isDone) {
+            isEventListenerLocked = true;
+            setTimeout(init, 1000);
+        }
+
+        if (attempts == 0) {
+            this.openWord();
+            isEventListenerLocked = true;
+            setTimeout(init, 1000);
+        }
+    }
+
+    Word.prototype.openWord = function() {
+        this.letters.forEach((element) => {
+            element.isShown = true;
+            ctx.clearRect(element.x, element.y, element.width, element.height);
+        })
+        word.update();
+    }
+
+    var AlphabetLetter = function(letter, x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width;
+        this.height = height;
+        this.letter = letter;
+        this.status = "undefined"; // statuses: undefined, right, wrong
+    }
+
+    AlphabetLetter.prototype.update = function() {
+        ctx.font = "20px Arial";
+        ctx.fillStyle = "Black";
+        ctx.fillText(this.letter, this.x + this.width / 2, this.y + this.height / 2);
+
+        if (this.status === "right") {
+            ctx.strokeStyle = "Green";
+            ctx.beginPath();
+            ctx.moveTo(this.x + this.width / 2 - 5, this.y + this.height / 2);
+            ctx.lineTo(this.x + this.width / 2 + 5, this.y + this.height / 2 + 10);
+            ctx.lineTo(this.x + 2 * this.width / 2 - 5, this.y + this.height / 2 - 10);
+            ctx.stroke();
+        } else if (this.status === "wrong") {
+            ctx.strokeStyle = "Red";
+            ctx.beginPath();
+            var startX = this.x + this.width / 2,
+                startY = this.y + this.height / 2;
+            ctx.moveTo(startX - 10, startY - 10);
+            ctx.lineTo(startX + 10, startY + 10);
+            ctx.moveTo(startX - 10, startY + 10);
+            ctx.lineTo(startX + 10, startY - 10);
+            ctx.stroke();
+        }
+    }
+
+    var Alphabet = function() {
+        this.alphabet = this.initLetters();
+        this.update();
+    }
+
+    Alphabet.prototype.initLetters = function() {
+        var result = [],
+            size = 50,
+            offsetX = (width - 10 * size) / 2,
+            offsetY = height - 5 * size,
+            row = 0,
+            column = 0;
+
+        var letters = ["а", "б", "в", "г", "д", "е", "ё", "ж", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "ч", "ш", "щ", "ъ", "ы", "ь", "э", "ю", "я"]
+
+        for (var i = 0; i < letters.length; i++) {
+            tmp = new AlphabetLetter(letters[i], offsetX + size * column, offsetY + size * row, size, size);
+            result.push(tmp);
+
+            column++;
+            if (column == 10) {
+                row++;
+                column = 0;
+            }
+        }
+
+        return result;
+    }
+
+    Alphabet.prototype.update = function() {
+        this.alphabet.forEach((element) => {
+            element.update();
+        })
+    }
+
+    var eventListener = function(event) {
+        if (attempts > 0 || isEventListenerLocked == false) {
+            var canvasX = canvas.offsetLeft + canvas.clientLeft,
+                canvasY = canvas.offsetTop + canvas.clientTop,
+                x = event.pageX - canvasX,
+                y = event.pageY - canvasY;
+
+            alphabet.alphabet.forEach(function(element) {
+                if (y > element.y && y < element.y + element.height &&
+                    x > element.x && x < element.x + element.width) {
+                    if (element.status === "undefined") {
+                        var isLetterInWord = word.isLetterInWord(element.letter);
+                        if (isLetterInWord == true) {
+                            element.status = "right";
+                        } else {
+                            element.status = "wrong";
+                        }
+
+                        if (element.status === "wrong") {
+                            attempts--;
+                        }
+                    }
+
+                }
+            });
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            word.update();
+            alphabet.update();
+            word.checkWordProgress();
+            ctx.strokeStyle = "Black";
+            ctx.strokeRect(0, 0, width, height);
+        }
+    }
+
+    var init = function() {
+        ctx.clearRect(0, 0, width, height);
+        attempts = 7;
+        isEventListenerLocked = false;
+        alphabet = new Alphabet();
+        word = new Word();
+        word.checkWordProgress();
+        ctx.strokeStyle = "Black";
+        ctx.strokeRect(0, 0, width, height);
+    }
+
+    var canvas = document.getElementById("canvas"),
+        ctx = canvas.getContext("2d"),
+        width = canvas.width,
+        height = canvas.height;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.lineWidth = 3;
+
+    var attempts, alphabet, word, isEventListenerLocked;
+    init();
+
+    canvas.addEventListener('click', eventListener, false);
+    </script>
+</body>
+
+</html>
