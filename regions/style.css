@@ -1,0 +1,43 @@
+body {
+    margin-left: 30px;
+}
+
+.button {
+    border: 1px solid black;
+    width: 300px;
+    height: 50px;
+    text-align: center;
+    line-height: 50px;
+    margin-top: 10px;
+}
+
+.button:hover {
+    cursor: pointer;
+}
+
+.answer {
+}
+
+.question {
+    font-size: 30px;
+}
+
+.right-answer {
+    background: lightgreen;
+}
+
+.incorrect-answer {
+    background: lightcoral;
+}
+
+.next-btn {
+    background: cornsilk;
+}
+
+.hidden {
+    transform: scale(0);
+}
+
+.disable {
+    pointer-events: none;
+}
